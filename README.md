@@ -39,8 +39,8 @@ Because the underlying data is from 1990, the resulting model is not intended fo
 1. **Business Understanding** — problem definition, objectives, success criteria
 2. **Data Understanding** — structure, data types, missing values, duplicates, outliers, distributions, correlations, geographic view
 3. **Data Preparation** — train/test split, feature engineering, preprocessing pipeline (imputation, scaling, encoding)
-4. **Modeling** — baseline Linear Regression
-5. **Evaluation** — MAE, RMSE and R² on the held-out test set
+4. **Modeling** — Dummy baseline, Linear Regression, Random Forest, Histogram Gradient Boosting; 5-fold cross-validation on the training set for model selection
+5. **Evaluation** — MAE, MSE, RMSE, R² and relative error on the held-out test set
 
 ## How to Run
 
@@ -52,32 +52,33 @@ jupyter notebook
 Run the notebooks **in order, from `01` to `05`**. The `artifacts/` folder (at the project root, next to `notebooks/`) is created automatically when you run the notebooks:
 
 - `03_data_preparation.ipynb` saves the prepared train/test data and the fitted preprocessor to `artifacts/`.
-- `04_modeling.ipynb` loads those files, trains the model, and saves the predictions and the model.
-- `05_evaluation.ipynb` loads the predictions and computes the metrics.
+- `04_modeling.ipynb` loads those files, compares the models with cross-validation, selects the best one, and saves the selected model and the test predictions of all models.
+- `05_evaluation.ipynb` loads the predictions and computes the metrics on the test set.
 
 Skipping `03` will cause `04` to fail unless the `artifacts/` files already exist.
 
-## Results (Baseline)
+## Results
 
-Linear Regression on the held-out test set (20% split, `random_state=42`):
+Test-set results (20% split, `random_state=42`). The model was selected by 5-fold cross-validation on the training set only.
 
-| Metric | Value |
-| ------ | ----- |
-| MAE    | $49,645.49 |
-| RMSE   | $69,127.04 |
-| R²     | 0.6353 |
+| Model | MAE | RMSE | R² | Relative MAE |
+| ----- | --- | ---- | -- | ------------ |
+| Dummy (mean) | $90,607 | $114,486 | -0.0002 | 44.1% |
+| Linear Regression | $49,645 | $69,127 | 0.6353 | 24.2% |
+| Random Forest | $31,926 | $49,834 | 0.8105 | 15.5% |
+| **Hist Gradient Boosting (selected)** | **$30,579** | **$46,260** | **0.8367** | **14.9%** |
 
-These results are a baseline. They should be read with the dataset limitations above in mind, especially the cap on `median_house_value`.
+The selected model's relative MAE (14.9%) is at the upper end of the preliminary 10–15% target. A bootstrap 95% interval of 14.4%–15.4% crosses 15%, so it is best described as close to the target rather than clearly meeting it. All models use default hyperparameters. Results should be read with the dataset limitations above in mind, especially the cap on `median_house_value`.
 
 ## Status
 
-🚧 In progress — the full pipeline runs end to end with a baseline model. Next steps:
+🚧 In progress — the full pipeline runs end to end, with model comparison and evaluation. Next steps:
 
-- [ ] Add a `DummyRegressor` baseline for reference
-- [ ] Compare tree-based models (Random Forest, Gradient Boosting) using cross-validation
-- [ ] Report relative error against the 10–15% target defined in the business understanding notebook
-- [ ] Analyze the effect of the 500,001 cap on evaluation results
-- [ ] Hyperparameter tuning and final model selection
+- [ ] Hyperparameter tuning of the selected model
+- [ ] Feature importance analysis
+- [ ] Check whether the engineered ratio features improve the tree-based models
+- [ ] Review districts with extreme per-household ratios (see Data Understanding, Section 17)
+- [ ] Apply the pipeline to current, live housing data
 
 ## Requirements
 
@@ -87,12 +88,10 @@ numpy
 matplotlib
 seaborn
 scikit-learn
-scipy
-joblib
 jupyter
 ```
 
-Pinned versions are listed in `requirements.txt`.
+Pinned versions are listed in `requirements.txt`. `scipy` and `joblib`, which the notebooks also use, are installed automatically with `scikit-learn`.
 
 ## Author
 
