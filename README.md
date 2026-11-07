@@ -72,7 +72,9 @@ The selected model's relative MAE (14.9%) is at the upper end of the preliminary
 
 ## Status
 
-🚧 In progress — the full pipeline runs end to end, with model comparison and evaluation. Next steps:
+✅ **Version 1 complete** — the full pipeline (data understanding, preparation, model comparison, and evaluation) runs end to end and the results are documented above.
+
+Possible extensions:
 
 - [ ] Hyperparameter tuning of the selected model
 - [ ] Feature importance analysis
